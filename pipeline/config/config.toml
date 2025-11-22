@@ -1,0 +1,32 @@
+# if the env var isn’t set, this fallback value will be used (local database).
+[database]
+env = "PUBMEDFLO_DB_URL"
+default = "postgresql://localhost:5432/pubmedflo"
+
+[input]
+# Contains raw pdfs or txt files.
+raw_dir = "data/raw"
+# Path to metadata file.
+metadata_csv = "data/csv-diabetestr-set.csv"
+# Number of tokens per chunk text.
+# sentence-transformers model built on a MiniLM encoder has a maximum sequence length of 384 tokens.
+chunk_size = 384
+# Recommend between 10-20% overlap for chunks
+# Overlap between consecutive chunks
+overlap_ratio = 0.15
+
+[embed]
+# Model that generates vectors from the chunks.
+model = "sentence-transformers/all-MiniLM-L6-v2"
+# Number of text chunks processed at once when generating embeddings.
+batch_size = 16
+# normalize embedding vectors to unit length (for cosine similarity). 
+# `true` for cosine similarity and `false` for euclidean distance.
+# Needs to be lowercase in toml
+normalize = false
+
+[generation]
+# Default LLM used for answer generation during retrieval.
+# This model must be available through the OpenAI API (e.g., "gpt-4o-mini", "gpt-4o", "gpt-4-turbo").
+# The pipeline’s generate_answer() function currently supports only OpenAI-hosted models.
+llm_model = "gpt-4o-mini"
