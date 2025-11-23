@@ -16,11 +16,11 @@ from typing import Iterable
 
 import psycopg
 
-from config.config import InputConfig, PipelineConfig, load_config
-from core.chunker import chunk_text, normalize_text
-from core.pdf_reader import read_document
-from utils.metadata_loader import MetadataStore, upload_metadata_to_db, load_metadata_rows
-from utils.db_writer import ensure_pubmed_document_entry, upsert_chunks
+from pipeline.config.config import InputConfig, PipelineConfig, load_config
+from pipeline.core.chunker import chunk_text, normalize_text
+from pipeline.core.pdf_reader import read_document
+from pipeline.utils.metadata_loader import MetadataStore, upload_metadata_to_db, load_metadata_rows
+from pipeline.utils.db_writer import ensure_pubmed_document_entry, upsert_chunks
 
 
 def process_document(

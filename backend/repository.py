@@ -50,8 +50,6 @@ async def lifespan(app):
         yield # during
     finally:
         pool.close() # after
-        # Wait until all connections and background tasks are fully cleaned up before exit.
-        pool.wait_close()
 
 
 def get_db():

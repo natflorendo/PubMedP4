@@ -20,7 +20,7 @@ import logging
 from dataclasses import replace 
 from pathlib import Path
 
-from config.config import PipelineConfig, load_config
+from pipeline.config.config import PipelineConfig, load_config
 
 from .index_builder import DEFAULT_INDEX_PATH, build_index, ensure_index_build
 from .retriever import search_index

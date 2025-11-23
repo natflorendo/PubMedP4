@@ -14,10 +14,10 @@ import argparse
 import logging
 from pathlib import Path
 
-from config.config import PipelineConfig, load_config
-from core import parse_directory as parse_stage
-from core import embed_chunks as embed_stage
-from core import index_flat as index_stage
+from pipeline.config.config import PipelineConfig, load_config
+from pipeline.core import parse_directory as parse_stage
+from pipeline.core import embed_chunks as embed_stage
+from pipeline.core import index_flat as index_stage
 
 
 def run(config: PipelineConfig) -> None:

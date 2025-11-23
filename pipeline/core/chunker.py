@@ -11,8 +11,6 @@ import re
 from dataclasses import dataclass
 from typing import Iterator
 
-import psycopg
-
 # frozen=True means it automatically generates an immutable class with an __init__ method.
 # (once created, you can’t change its fields)
 @dataclass(frozen=True)
@@ -28,7 +26,7 @@ class Chunk:
 def normalize_text(raw_text: str) -> str:
     """
     Remove extra whitespace and drop non-ASCII characters to ensure
-    consisten tokenization across all documents.
+    consistent tokenization across all documents.
     """
     # Converts the input string into bytes dropping any characters that can’t be represented in ASCII.
     # Then decodes back to a string.

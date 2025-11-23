@@ -6,24 +6,33 @@ Handles database interactions related to text chunking and document tracking.
 
 import psycopg
 import logging
-from core.chunker import Chunk
-from utils.metadata_loader import ArticleMetadata
+from pipeline.core.chunker import Chunk
+from .metadata_loader import ArticleMetadata
 
 
-def ensure_pubmed_document_entry(conn: psycopg.Connection, article: ArticleMetadata) -> None:
+# * = All parameters after this point must be passed by keyword, not by position.
+# * is a keyword-only seperator.
+def ensure_pubmed_document_entry(
+    conn: psycopg.Connection,
+    article: ArticleMetadata,
+    *,
+    added_by: int | None = None,
+) -> None:
     """Ensure a PubMed-linked document entry exists in the `documents` table."""
     pmid = article.pmid
     title = article.title or f"PMID {pmid}"
     # Insert a new PubMed document or update the existing one only if title, type, or source_url differ.
     # Ensures a single up-to-date record per PMID while avoiding redundant updates.
+    # COALESCE(a, b) = return the first non-NULL value among its arguments.
     conn.execute(
         """
         INSERT INTO documents (title, type, source_url, processed, added_by, pmid)
-        VALUES (%(title)s, %(type)s, %(source_url)s, FALSE, NULL, %(pmid)s)
+        VALUES (%(title)s, %(type)s, %(source_url)s, FALSE, %(added_by)s, %(pmid)s)
         ON CONFLICT (pmid) DO UPDATE
         SET title = EXCLUDED.title,
             type = EXCLUDED.type,
-            source_url = EXCLUDED.source_url
+            source_url = EXCLUDED.source_url,
+            added_by = COALESCE(EXCLUDED.added_by, documents.added_by)
         WHERE documents.title IS DISTINCT FROM EXCLUDED.title
             OR documents.type IS DISTINCT FROM EXCLUDED.type
             OR documents.source_url IS DISTINCT FROM EXCLUDED.source_url
@@ -32,6 +41,7 @@ def ensure_pubmed_document_entry(conn: psycopg.Connection, article: ArticleMetad
             "title": title,
             "type": "pubmed_text",
             "source_url": f"https://pubmed.ncbi.nlm.nih.gov/{pmid}/",
+            "added_by": added_by,
             "pmid": pmid,
         },
     )

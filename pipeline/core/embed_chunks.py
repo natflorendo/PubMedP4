@@ -21,7 +21,7 @@ import psycopg
 from psycopg.rows import dict_row
 from sentence_transformers import SentenceTransformer
 
-from config.config import PipelineConfig, load_config
+from pipeline.config.config import PipelineConfig, load_config
 
 # frozen=True means it automatically generates an immutable class with an __init__ method.
 # (once created, you can’t change its fields)

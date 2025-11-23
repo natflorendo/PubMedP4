@@ -17,7 +17,7 @@ import numpy as np
 import psycopg
 from sentence_transformers import SentenceTransformer
 
-from config.config import PipelineConfig
+from pipeline.config.config import PipelineConfig
 from .index_builder import DEFAULT_INDEX_PATH, ensure_index_build, load_index, _ensure_artifact_dir
 from .answer_generator import generate_answer
 

@@ -16,7 +16,7 @@ import faiss
 import numpy as np
 import psycopg
 
-from config.config import PipelineConfig
+from pipeline.config.config import PipelineConfig
 
 from dotenv import load_dotenv
 load_dotenv()
