@@ -51,9 +51,4 @@ CREATE TABLE IF NOT EXISTS retrieves (
     PRIMARY KEY (query_id, doc_id)
 );
 
--- Seed baseline roles (admin, curator, and regular end_user)
-INSERT INTO roles (role_name)
-VALUES ('admin'), ('curator'), ('end_user')
-ON CONFLICT (role_name) DO NOTHING;
-
 COMMIT;

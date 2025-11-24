@@ -87,28 +87,19 @@ class QueryRequest(BaseModel):
 
 # Article level citation in the response.
 class Citation(BaseModel):
-    # Pubmed ID for the article.
-    pmid: int
-    # Title of the article.
-    title: str
-    # Internal database ID from the `documents` table.
-    doc_id: Optional[int] 
+    pmid: int              # Pubmed ID for the article.
+    title: str             # Title of the article.
+    doc_id: Optional[int]  # Internal database ID from the `documents` table.
 
 
 # Retrieved text chunk from the similarity search.
 class ChunkResult(BaseModel):
-    # Internal ID from the `text_chunks` table
-    chunk_id: int
-    # PubMed ID of the article the chunk came from
-    pmid: int
-    # Internal database ID from the `documents` table.
-    doc_id: Optional[int]
-    # Title of the article.
-    title: str
-    # Retrieval score from FAISS
-    score: float
-    # Actual text of a chunk.
-    chunk_text: str
+    chunk_id: int          # Internal ID from the `text_chunks` table.
+    pmid: int              # PubMed ID of the article the chunk came from
+    doc_id: Optional[int]  # Internal database ID from the `documents` table.
+    title: str             # Title of the article.
+    score: float           # Retrieval score from FAISS
+    chunk_text: str        # Actual text of a chunk.
 
 
 class QueryResponse(BaseModel):
@@ -120,3 +111,17 @@ class QueryResponse(BaseModel):
     citations: List[Citation]
     # The chunks that were retrieved by FAISS and passed to the LLM.
     retrieved_chunks: List[ChunkResult]
+
+
+class DocumentSummary(BaseModel):
+    doc_id: int                         # ID from the `documents` table.
+    title: str                          # Title of the article.
+    type: Optional[str] = None          # Source the document came from.
+    source_url: Optional[str] = None    # Link to the article.
+    processed: bool                     # Whether the docuement has completed the ingestion pipeline.
+    added_at: datetime                  # Timestamp of when the document was added.
+    added_by: Optional[int] = None      # User ID of who added the document.
+    curator_name: Optional[str] = None  # Name of the curator who added the document.
+    pmid: Optional[int] = None          # Pubmed ID of the article.
+    chunk_count: int                    # Number of text chunks associated with the document’s pmid.
+    embedding_count: int                # Number of embedding rows associated with the document’s pmid.

@@ -49,7 +49,7 @@ async def lifespan(app):
     try:
         yield # during
     finally:
-        pool.close() # after
+        pool.close() # after; stop accepting new tasks
 
 
 def get_db():
@@ -274,3 +274,76 @@ class UserRepository:
         ).fetchone()
         self.conn.commit()
         return bool(deleted)
+
+
+class DocumentRepository:
+    def __init__(self, conn: Connection):
+        self.conn = conn
+
+    def list_curator_documents(self) -> List[Dict[str, Any]]:
+        """Return a list of curator added documents with its metadata."""
+        # Select all document fields, the user's name, and the chunk and embed count for the document.
+        # Join users table to filter to only documents that were added by a user.
+        # Left join text_chunks by pmid to compute chunk_count.
+        # Left join chunk_embeddings to compute embedding_count.
+        # Return newest documents first.
+        rows = self.conn.execute(
+            """
+            SELECT
+                d.doc_id,
+                d.title,
+                d.type,
+                d.source_url,
+                d.processed,
+                d.added_at,
+                d.added_by,
+                d.pmid,
+                u.name AS curator_name,
+                COALESCE(tc.chunk_count, 0) AS chunk_count,
+                COALESCE(ce.embedding_count, 0) AS embedding_count
+            FROM documents AS d
+            JOIN users AS u ON u.user_id = d.added_by
+            LEFT JOIN (
+                SELECT pmid, COUNT(*) AS chunk_count
+                FROM text_chunks
+                GROUP BY pmid
+            ) AS tc ON tc.pmid = d.pmid
+            LEFT JOIN (
+                SELECT pmid, COUNT(*) AS embedding_count
+                FROM chunk_embeddings
+                GROUP BY pmid
+            ) AS ce ON ce.pmid = d.pmid
+            ORDER BY d.added_at DESC, d.doc_id DESC
+            """
+        ).fetchall()
+        # Converts each row object into a dict.
+        return [dict(row) for row in rows]
+
+    # Just return bool since 204 success code doesn't return a body
+    def delete_document(self, doc_id: int, requester_id: int, is_admin: bool = False) -> bool:
+        """
+        Delete a curator added document by its ID.
+        Curators may only delete documents they originally uploaded, while admins can delete any document.
+        """
+        # Fetch the document
+        row = self.conn.execute(
+            "SELECT doc_id, pmid, title, added_by FROM documents WHERE doc_id = %s",
+            (doc_id,)
+        ).fetchone()
+        if not row:
+            return False
+
+        # Only allow owner curator unless admin
+        if not is_admin and row["added_by"] != requester_id:
+            raise PermissionError("Cannot delete documents uploaded by another curator")
+
+        pmid = row["pmid"]
+        if pmid is not None:
+            # Remove metadata and cascading chunk records.
+            self.conn.execute("DELETE FROM pubmed_articles WHERE pmid = %s", (pmid,))
+
+        # Delete the document row
+        self.conn.execute("DELETE FROM documents WHERE doc_id = %s", (doc_id,))
+        self.conn.commit()
+
+        return True

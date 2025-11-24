@@ -11,13 +11,26 @@ from fastapi import APIRouter, Depends, File, Form, HTTPException, UploadFile, s
 from pipeline.utils.metadata_loader import ArticleMetadata, load_metadata_rows
 
 from .auth import require_roles
+from .models import DocumentSummary
 from .pipeline_service import PipelineService
+from .repository import DocumentRepository, get_db
 
 
 # `prefix` adds the given prefix to every route inside this router.
 # `tags` adds an Swagger tag for documentation. (Use http://127.0.0.1:8000/docs)
 router = APIRouter(prefix="/curator", tags=["curator"])
 pipeline_service = PipelineService()
+_curator_guard = require_roles(["curator", "admin"])
+
+
+def get_current_curator(user=Depends(_curator_guard)):
+    """Returns the currently authenticated curator user."""
+    return user
+
+
+def get_document_repo(conn=Depends(get_db)):
+    """Provides a DocumentRepository instance."""
+    return DocumentRepository(conn)
 
 
 def _persist_upload(upload: UploadFile, destination: Path) -> None:
@@ -135,7 +148,7 @@ async def upload_document(
     first_author: str | None = Form(None),
     pmcid: str | None = Form(None),
     nihmsid: str | None = Form(None),
-    current_user=Depends(require_roles(["curator", "admin"])),
+    current_user=Depends(get_current_curator),
 ):
     """
     Handle curator uploads. 
@@ -235,3 +248,42 @@ async def upload_document(
         "embeddings": result.embedding_count,
         "metadata_source": metadata_source,
     }
+
+
+@router.get("/documents", response_model=list[DocumentSummary])
+def list_documents(
+    repo: DocumentRepository = Depends(get_document_repo),
+    current_user=Depends(get_current_curator)
+):
+    """Return a list of curator added documents with its metadata."""
+    documents = []
+    for record in repo.list_curator_documents():
+        # `**`` is a dictionary unpacking operator. It means “take all the key–value pairs in 
+        # this dict and pass them as keyword arguments.
+        documents.append(DocumentSummary(**record))
+    return documents
+
+
+@router.delete("/documents/{doc_id}", status_code=status.HTTP_204_NO_CONTENT)
+def delete_document(
+    doc_id: int,
+    repo: DocumentRepository = Depends(get_document_repo),
+    current_user=Depends(get_current_curator),
+):
+    """
+    Delete a curator added document by its ID.
+    Curators may only delete documents they originally uploaded, while admins can delete any document.
+    """
+    user_roles = {role.lower() for role in current_user.get("roles", [])}
+    is_admin = "admin" in user_roles
+    try:
+        # Checks the document exists, enforces only owner curator unless admin, then deletes document.
+        deleted = repo.delete_document(doc_id, current_user["user_id"], is_admin)
+    except PermissionError as e:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN, 
+            detail=str(e)
+        )
+
+    if not deleted:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Document not found")
