@@ -243,10 +243,8 @@ project/
 │   │   ├── models.py
 │   │   ├── repository.py
 │   │   └── init.sql
-│   └── rag_pipeline/
-│       ├── ingest_chunk.py
-│       ├── embed_chunks.py
-│       └── vector_store.py
+│   └── services/
+│       └── pipeline_service.py
 │
 ├── templates/
 │   ├── layout.html

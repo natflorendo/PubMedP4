@@ -58,13 +58,13 @@ def _log_query(
         query_text: str, 
         ordered_results: List[dict],
         response_text: str | None = None,
+        user_id: int | None = None,
 ) -> int:
     """Log the query and its retrieved results into the database."""
-    # TODO: Update `user_id` to not always be `NULL` when implementing Phase 4.
     with conn.cursor() as cur:
         cur.execute(
-            "INSERT INTO query_logs (query_text, response_text, user_id) VALUES (%s, %s, NULL) RETURNING query_id",
-            (query_text, response_text,),
+            "INSERT INTO query_logs (query_text, response_text, user_id) VALUES (%s, %s, %s) RETURNING query_id",
+            (query_text, response_text, user_id),
         )
         query_id = cur.fetchone()[0]
         # Store document level retrievals in database.
@@ -85,7 +85,8 @@ def search_index(
     model_name: str | None = None,
     index_path: Path | None = None,
     answer_model: str | None = None,
-) -> List[dict]:
+    user_id: int | None = None,
+) -> tuple[List[dict], str | None, int | None]:
     """Find and return the top-k most similar text chunks."""
     # Extract embed configuration section.
     embed_cfg = config.embed
@@ -139,6 +140,7 @@ def search_index(
 
         # Generate answer if model is provided
         answer = None
+        query_id = None
         if answer_model:
             answer = generate_answer(query_text, ordered_results, answer_model)
             if answer:
@@ -147,7 +149,7 @@ def search_index(
                 logging.info("Answer generation skipped or failed.")
 
         if ordered_results:
-                query_id = _log_query(conn, query_text, ordered_results, answer)
+                query_id = _log_query(conn, query_text, ordered_results, answer, user_id=user_id)
                 logging.info("Logged query: %s (query_id=%d)", query_text, query_id)
 
-    return ordered_results
+    return ordered_results, answer, query_id

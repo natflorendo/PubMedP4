@@ -2,7 +2,7 @@ import os
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from . import admin, auth, curator
+from . import admin, auth, curator, query
 from .repository import lifespan
 
 """
@@ -40,3 +40,4 @@ app.add_middleware(
 app.include_router(auth.router)
 app.include_router(admin.router)
 app.include_router(curator.router)
+app.include_router(query.router)

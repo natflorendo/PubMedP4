@@ -36,7 +36,7 @@ def run(
     # If there is a query, search the index, otherwise build the index
     if query:
         llm_model = answer_model or config.generation.llm_model
-        results = search_index(
+        results, answer, _ = search_index(
             config,
             query,
             k,

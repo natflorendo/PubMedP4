@@ -91,11 +91,11 @@ def _metadata_from_form(
         )
     try:
         pmid_value = int(pmid)
-    except ValueError as exc:
+    except ValueError:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="PMID must be an integer.",
-        ) from exc
+        )
 
     # Use the internal strip function to normalize a lot of the fields (handles None without crashing)
     title_value = _strip(title) or f"PMID {pmid_value}"
@@ -171,7 +171,7 @@ async def upload_document(
                 raise HTTPException(
                     status_code=status.HTTP_400_BAD_REQUEST,
                     detail=f"Metadata CSV could not be parsed: {e}",
-                ) from e
+                )
             # Record that metadata came from CSV for response.
             metadata_source = "csv"
         # Fall back to manual form metadata.
@@ -213,17 +213,18 @@ async def upload_document(
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail=f"Unable to match document to metadata: {e}",
-            ) from e
+            )
         except ValueError as e:
+            # Bad user input
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail=str(e),
-            ) from e
+            )
         except Exception as e:
             raise HTTPException(
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
                 detail=f"Failed to ingest document: {e}",
-            ) from e
+            )
 
     return {
         "message": "Document ingested successfully.",

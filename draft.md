@@ -27,5 +27,5 @@ curl -X POST http://localhost:8000/curator/upload \
      -F "journal_name=Am J Case Rep" \
      -F "publication_year=2021"
 
-{"message":"Document ingested successfully.","pmid":34898594,"doc_id":3,"title":"Adipsic Diabetes Insipidus in Children: A Case Report and Practical Guide","chunks":14,"embeddings":14,"metadata_source":"form"}%       
+{"message":"Document ingested successfully.","pmid":34898594,"doc_id":3,"title":"Adipsic Diabetes Insipidus in Children: A Case Report and Practical Guide","chunks":14,"embeddings":14,"metadata_source":"form"}%
 ```

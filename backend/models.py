@@ -68,3 +68,55 @@ class TokenPayload(BaseModel):
 # After login/signup. Combines token with user to give to the frontend.
 class AuthResponse(Token):
     user: UserOut
+
+
+class QueryRequest(BaseModel):
+    # Field(...) = no default. User must provide.
+    # Must be a non-empty string
+    query: str = Field(..., min_length=1) 
+    # Optional Field with a default of 5.
+    # `ge` = greater than or equal to; `le` = less than or equal to.
+    k: int = Field(5, ge=1, le=20)
+    # If true, the backend will call the LLM and generate a natural language 
+    # answer based on the retrieved chunks. Otherwise, the API will only return the
+    # retrieved chunks and citations.
+    include_answer: bool = True
+    # Allows client to used a different model instead of the default.
+    answer_model: Optional[str] = None
+
+
+# Article level citation in the response.
+class Citation(BaseModel):
+    # Pubmed ID for the article.
+    pmid: int
+    # Title of the article.
+    title: str
+    # Internal database ID from the `documents` table.
+    doc_id: Optional[int] 
+
+
+# Retrieved text chunk from the similarity search.
+class ChunkResult(BaseModel):
+    # Internal ID from the `text_chunks` table
+    chunk_id: int
+    # PubMed ID of the article the chunk came from
+    pmid: int
+    # Internal database ID from the `documents` table.
+    doc_id: Optional[int]
+    # Title of the article.
+    title: str
+    # Retrieval score from FAISS
+    score: float
+    # Actual text of a chunk.
+    chunk_text: str
+
+
+class QueryResponse(BaseModel):
+    # Internal ID from the `query_logs` table.
+    query_id: Optional[int]
+    # The LLM-generated natural language answer.
+    answer: Optional[str]
+    # List of unique article-level citations used to support the answer [PMID XXXXXXXX].
+    citations: List[Citation]
+    # The chunks that were retrieved by FAISS and passed to the LLM.
+    retrieved_chunks: List[ChunkResult]
