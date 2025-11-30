@@ -137,16 +137,12 @@ cd phase4
    ```
 3. **Start the frontend (Vite dev server)**
    ```bash
+   cd frontend
    npm run dev
+   cd ..
    ```
    By default runs on http://localhost:5173. Ensure `VITE_API_BASE` points to your backend (e.g., `http://localhost:8000`).
-
-4. **Production build (optional)**
-   ```bash
-   npm run build
-   # npm run preview
    ```
-5. **Use curl/Postman** (examples below) or click through the frontend UI.
 
 ---
 
