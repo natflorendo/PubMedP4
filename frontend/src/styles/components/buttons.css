@@ -44,3 +44,13 @@
   color: #ffffff;
   border-color: #dc2626;
 }
+
+.btn-danger {
+    background-color: #dc2626;
+    color: #ffffff;
+    border-color: #dc2626;
+}
+
+.btn-danger:hover {
+    background-color: #d65f5f;
+}

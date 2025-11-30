@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { listUsers, updateUser } from "../api";
+import { listUsers, updateUser, deleteUser } from "../api";
 import { User } from "../types";
 import "../styles/pages/adminDashboard.css";
 import "../styles/components/tables.css";
@@ -16,28 +16,29 @@ export default function AdminDashboardPage() {
   const [rowStatus, setRowStatus] = useState<Record<number, RowStatus>>({});
 
 
+  async function load() {
+      try {
+        const fetched = await listUsers();
+        setUsers(fetched);
+
+        const initialInfo: Record<number, { name: string; email: string }> = {};
+
+        fetched.forEach((u) => {
+          initialInfo[u.user_id] = { name: u.name, email: u.email };
+        });
+        setEditFields(initialInfo);
+      } catch (err: any) {
+        setError(err?.message || "Failed to load users");
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    
   // Load all users
   useEffect(() => {
     load();
   }, []);
-
-  async function load() {
-    try {
-      const fetched = await listUsers();
-      setUsers(fetched);
-
-      const initialInfo: Record<number, { name: string; email: string }> = {};
-
-      fetched.forEach((u) => {
-        initialInfo[u.user_id] = { name: u.name, email: u.email };
-      });
-      setEditFields(initialInfo);
-    } catch (err: any) {
-      setError(err?.message || "Failed to load users");
-    } finally {
-      setLoading(false);
-    }
-  }
 
 
   // Toggle a single role (admin/curator/end_user) for a user and persist to the backend 
@@ -91,6 +92,18 @@ export default function AdminDashboardPage() {
     }));
   };
 
+  // Delete a user (with confirmation) and refresh the table
+  const handleDeleteUser = async (user: User) => {
+    if (!confirm(`Delete user "${user.name}"? This cannot be undone.`)) return;
+    try {
+      await deleteUser(user.user_id);
+      setUsers((prev) => prev.filter((u) => u.user_id !== user.user_id));
+    } catch (err: any) {
+      alert(err?.message || "Delete failed");
+    }
+  };
+
+  
   if (loading) return <p className="muted">Loading users...</p>;
   if (error) return <p className="error">{error}</p>;
 
@@ -151,6 +164,13 @@ export default function AdminDashboardPage() {
                       : status === "saved"
                       ? "Saved"
                       : "Save"}
+                  </button>
+                  <button
+                    className="btn-secondary btn-danger"
+                    onClick={() => handleDeleteUser(u)}
+                    style={{ marginLeft: "0.5rem" }}
+                  >
+                    Delete
                   </button>
                 </td>
               </tr>

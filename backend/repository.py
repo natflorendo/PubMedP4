@@ -288,12 +288,13 @@ class DocumentRepository:
     def __init__(self, conn: Connection):
         self.conn = conn
 
-    def list_curator_documents(self) -> List[Dict[str, Any]]:
+    def list_curator_documents(self, user_id: int, is_admin: bool) -> List[Dict[str, Any]]:
         """Return a list of curator added documents with its metadata."""
         # Select all document fields, the user's name, and the chunk and embed count for the document.
         # Join users table to filter to only documents that were added by a user.
         # Left join text_chunks by pmid to compute chunk_count.
         # Left join chunk_embeddings to compute embedding_count.
+        # Where cluase makes it so that admins can see all documents and curators see their own added documents.
         # Return newest documents first.
         rows = self.conn.execute(
             """
@@ -321,8 +322,10 @@ class DocumentRepository:
                 FROM chunk_embeddings
                 GROUP BY pmid
             ) AS ce ON ce.pmid = d.pmid
+            WHERE %s OR d.added_by = %s
             ORDER BY d.added_at DESC, d.doc_id DESC
-            """
+            """,
+            (is_admin, user_id),
         ).fetchall()
         # Converts each row object into a dict.
         return [dict(row) for row in rows]

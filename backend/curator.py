@@ -257,11 +257,20 @@ def list_documents(
 ):
     """Return a list of curator added documents with its metadata."""
     documents = []
-    for record in repo.list_curator_documents():
-        # `**`` is a dictionary unpacking operator. It means “take all the key–value pairs in 
-        # this dict and pass them as keyword arguments.
-        documents.append(DocumentSummary(**record))
-    return documents
+    try:
+        user_roles = {role.lower() for role in current_user.get("roles", [])}
+        is_admin = "admin" in user_roles
+
+        for record in repo.list_curator_documents(current_user["user_id"], is_admin):
+            # `**`` is a dictionary unpacking operator. It means “take all the key–value pairs in 
+            # this dict and pass them as keyword arguments.
+            documents.append(DocumentSummary(**record))
+        return documents
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to load documents: {e}",
+        )
 
 
 @router.delete("/documents/{doc_id}", status_code=status.HTTP_204_NO_CONTENT)
