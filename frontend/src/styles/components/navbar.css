@@ -1,0 +1,43 @@
+/* navbar.css */
+
+.navbar { 
+    display: flex; 
+    justify-content: space-between; 
+    align-items: center; 
+    padding: 10px; 
+    gap: 12px; 
+}
+
+.nav-link.active {
+    color: #7C3AED;
+}
+
+.glass {
+    background: rgba(226, 226, 226, 0.4);
+    backdrop-filter: blur(100px);
+    border: 1px solid rgba(146, 146, 146, 0.75);
+    border-radius: 10px;
+    height: 2.9rem;
+}
+
+.nav-left, .nav-right { 
+    display: flex; 
+    gap: 12px; 
+    align-items: center; 
+}
+
+.nav-user { 
+    font-weight: 600; 
+}
+.btn-secondary { 
+    background: #e5e7eb; 
+    color: #111; 
+    border: none; 
+    padding: 6px 10px; 
+    border-radius: 4px; 
+    cursor: pointer; 
+}
+
+.btn-secondary:hover { 
+    background: #d1d5db; 
+}

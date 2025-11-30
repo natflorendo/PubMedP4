@@ -1,0 +1,24 @@
+/* tables.css */
+
+.table { 
+    width: 100%; 
+    border-collapse: collapse; 
+    margin-top: 12px; 
+}
+
+.table th, .table td { 
+    text-align: left; 
+    padding: 8px; 
+    border-bottom: 1px solid #e5e7eb; 
+    vertical-align: top; 
+}
+
+.role-toggle { 
+    margin-right: 8px; 
+    font-size: 0.9rem; 
+}
+
+.chunk-text { 
+    max-width: 500px; 
+    white-space: pre-wrap; 
+}

@@ -1,0 +1,23 @@
+/* typography.css */
+
+h1, h2, h3 { 
+    margin-bottom: 8px; 
+}
+
+h1 { 
+    font-size: 28px; 
+}
+
+h2 { 
+    font-size: 22px; 
+}
+
+h3 { 
+    font-size: 18px; 
+    margin-top: 16px; 
+}
+
+p { 
+    margin: 8px 0; 
+    line-height: 1.5; 
+}

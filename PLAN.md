@@ -109,23 +109,24 @@ The system must integrate:
 
 ---
 
-## Milestone 4: Bonus UI (HTML Templates + Split CSS) (7–10 hours)
+## Milestone 4: Bonus UI (React + TypeScript, Split CSS) (7–10 hours)
 
-**Goal:** Build a clean, minimal UI with split CSS files instead of one global file.
+**Goal:** Build a clean, minimal UI as a React + TypeScript SPA with split CSS files (no Tailwind).
 
-### Required Pages
+### Required Screens (React Pages)
 
 1. Login Page
 2. Signup Page
 3. Admin Dashboard
 4. Curator Dashboard
 5. Search Page
-6. Shared components (nav bar, header)
+6. Shared layout components (nav bar, header)
 
 ### CSS Structure (split by page or component)
 
-```
-static/css/
+`src/styles/`
+```text
+src/styles/
 │
 ├── base/
 │   ├── reset.css
@@ -141,42 +142,67 @@ static/css/
 └── pages/
     ├── login.css
     ├── signup.css
-    ├── admin_dashboard.css
-    ├── curator_dashboard.css
+    ├── adminDashboard.css
+    ├── curatorDashboard.css
     └── search.css
-```
+````
 
-### HTML Template Structure
+### React Structure (TypeScript)
 
-```
-templates/
+```text
+src/
 │
-├── layout.html        (master template)
-├── login.html
-├── signup.html
-├── admin_dashboard.html
-├── curator_dashboard.html
-└── search.html
+├── main.tsx              # App bootstrap
+├── App.tsx               # Top-level router/layout
+│
+├── components/
+│   ├── Navbar.tsx
+│   ├── Header.tsx
+│   ├── ProtectedRoute.tsx
+│   └── UserMenu.tsx
+│
+└── pages/
+    ├── LoginPage.tsx
+    ├── SignupPage.tsx
+    ├── AdminDashboardPage.tsx
+    ├── CuratorDashboardPage.tsx
+    └── SearchPage.tsx
 ```
 
 ### Tasks
 
-* Build layout system using Jinja templates
-* Implement CSS per page/component
-* Add:
+* Set up a React + TypeScript app (e.g., Vite or CRA with TS template).
+* Implement page components:
 
-  * Login form
-  * Signup form
-  * Admin user table
-  * Curator upload form + table
-  * Search interface with answer/citation sections
-* Ensure role-based routing on login
+  * `LoginPage` with login form.
+  * `SignupPage` with signup form.
+  * `AdminDashboardPage` with admin user table and role controls.
+  * `CuratorDashboardPage` with upload form + documents table.
+  * `SearchPage` with query input and answer/citation/results sections.
+* Implement shared layout:
+
+  * `Navbar` with links based on role.
+  * `Header` for app title / branding.
+* Wire up API calls to the existing backend:
+
+  * Store auth token (e.g., in `localStorage`) after login.
+  * Use `fetch`/Axios with `Authorization` headers.
+* Implement basic role-based routing:
+
+  * Protect admin routes with `ProtectedRoute` that checks `roles` from the current user.
+  * Redirect non-admin/non-curator users away from restricted pages.
+* Apply CSS per page/component using the split structure above (no Tailwind).
 
 ### Deliverables
 
-* Clean, functional, non-Tailwind UI
-* Separate CSS files for maintainability
-* Appropriate styling for readability and grading clarity
+* A clean, functional React + TypeScript SPA (non-Tailwind).
+* Separate CSS files for base styles, shared components, and pages.
+* Clear, readable UI for:
+
+  * Logging in / signing up.
+  * Admin user management.
+  * Curator document management (upload, list, delete).
+  * Searching with visible answers, citations, and retrieved chunks.
 
 ---
 

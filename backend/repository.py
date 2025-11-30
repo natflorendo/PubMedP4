@@ -275,6 +275,14 @@ class UserRepository:
         self.conn.commit()
         return bool(deleted)
 
+    def update_last_activity(self, user_id: int) -> None:
+        """Update the end_users.last_activity timestamp for this user if present."""
+        self.conn.execute(
+            "UPDATE end_users SET last_activity = CURRENT_TIMESTAMP WHERE user_id = %s",
+            (user_id,),
+        )
+        self.conn.commit()
+
 
 class DocumentRepository:
     def __init__(self, conn: Connection):

@@ -110,14 +110,18 @@ def require_roles(roles: Iterable[str]) -> Callable:
 def signup(payload: UserCreate, conn=Depends(get_db)):
     # Connect to db.
     repo = UserRepository(conn)
-    existing = repo.get_user_by_email(payload.email)
+
+    # Normalize email to be case-insensitive
+    normalized_email = payload.email.strip().lower()
+
+    existing = repo.get_user_by_email(normalized_email)
     if existing:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST, detail="Email already registered"
         )
 
     hashed = get_password_hash(payload.password)
-    user_record = repo.create_user(payload.name, payload.email, hashed, payload.roles)
+    user_record = repo.create_user(payload.name, normalized_email, hashed, payload.roles)
     access_token = create_access_token(
         data={"sub": str(user_record["user_id"]), "roles": user_record["roles"]}
     )

@@ -21,14 +21,14 @@
 ---
 
 ## Overview
-At a ***high-level***, this phase delivers a **complete question‑answering system** that combines the Phase 3 vector pipeline with a secure FastAPI backend. The backend exposes authentication, role-based access, curator document ingestion, and an end-user `/query` endpoint that returns LLM answers with citations. All data persists in PostgreSQL—documents, chunks, embeddings, users, query logs—so the server can restart without losing functionality.
+At a ***high-level***, this phase delivers a **complete question‑answering system**. Phase 3 built the vector pipeline (chunking, embeddings, FAISS); Phase 4 layers on the FastAPI backend, auth/roles, curator and end-user routes, and the integrated SQL schema. The backend exposes authentication, role-based access, curator document ingestion, and an end-user `/query` endpoint that returns LLM answers with citations. All data persists in PostgreSQL (documents, chunks, embeddings, users, query logs) so the server can restart without losing functionality.
 
 ---
 
 ## Project Description
 This section summarizes how the integrated system works end to end:
 
-* **Authentication & Roles** – Users sign up/login with hashed passwords. Admins/curators/end-users are tracked in SQL tables. JWT bearer tokens protect every route.
+* **Authentication & Roles** – Users sign up/login with hashed passwords. Admins/curators/end-users are tracked in SQL tables defined in `pipeline/Phase4.sql`. JWT bearer tokens protect every route.
 * **Curator Ingestion Pipeline** – Curators upload PDFs + metadata (CSV or manual fields). The server reuses the Phase 3 chunking + embedding pipeline, updates Postgres, and refreshes the FAISS index so new documents are instantly searchable.
 * **Vector Retrieval + LLM Answering** – `/query` encodes the user’s prompt, runs FAISS search, fetches chunk metadata, and optionally calls `gpt-4o-mini` to synthesize an answer with inline `[PMID #######]` citations.
 * **Logging & Auditing** – Each query is stored in `query_logs` along with retrieved document IDs. Deleting a user cascades through their query history per the schema.
@@ -37,7 +37,7 @@ This section summarizes how the integrated system works end to end:
 ---
 
 ## Architecture
-The system now has two cooperating layers:
+The system now has two layers:
 
 1. **Vector Pipeline (Phase 3)** – `pipeline/core/*`, `pipeline/utils/*`, and `pipeline/pubmed_pipeline.py` still parse PDFs, chunk text, embed, and write FAISS indices.
 2. **FastAPI Backend (Phase 4)** – `backend/*` wraps the pipeline in REST endpoints:
@@ -89,7 +89,7 @@ python3 -m pip install -r requirements.txt
 ### Initialize the Database Schema
 
 ```bash
-psql "$PUBMEDFLO_DB_URL" -f Phase4.sql
+psql "$PUBMEDFLO_DB_URL" -f pipeline/Phase4.sql
 ```
 
 ### Environment Variables
@@ -111,9 +111,9 @@ OPENAI_API_KEY="sk-your-key"   # optional; required for answer generation
 
 ## Running the System
 
-1. **Build or refresh the FAISS artifacts (optional)**
+1. **Build or refresh the FAISS artifacts (optional, Phase 3 pipeline)**
    ```bash
-   python3 pubmed_pipeline.py --log-level INFO
+   python3 -m pipeline.pubmed_pipeline --log-level INFO
    ```
 2. **Start the FastAPI backend**
    ```bash
@@ -161,9 +161,9 @@ curl -X PUT http://localhost:8000/admin/users/2 \
 curl -X POST http://localhost:8000/curator/upload \
      -H "Authorization: Bearer $TOKEN" \
      -F "document=@/path/to/doc.pdf;type=application/pdf" \
-     -F "metadata_csv=@/path/to/metadata.csv;type=text/csv"
+     -F "metadata_csv=@/path/to/metadata.csv"
 
-# List curator-managed documents + stats
+# List curator-managed documents & stats
 curl http://localhost:8000/curator/documents \
      -H "Authorization: Bearer $TOKEN"
 
@@ -223,5 +223,3 @@ These can be run via the CLI (`python3 -m core.index_flat --query ...`) or the R
 * `python3 pubmed_pipeline.py --log-level INFO` – Processes 20 PDFs into 430 chunks, embeds them, and writes the FAISS index.
 * `python3 -m core.index_flat --query "best treatment for central diabetes insipidus" --k 5` – Logs the query, prints the top results, and records entries in `query_logs` + `retrieves`.
 * `python3 -m core.index_flat --answer --query "What is diabetes insipidus?"` – Generates a natural-language answer with `[PMID #######]` citations.
-
-At this point the backend, pipeline, and SQL schema form a complete Phase 4 deliverable; adding UI pages per the bonus section would earn extra credit if desired.

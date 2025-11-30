@@ -1,0 +1,22 @@
+/* global.css */
+
+* { 
+    box-sizing: border-box; 
+    margin: 0; 
+    padding: 0; 
+}
+
+body { 
+    font-family: "Inter", Arial, sans-serif; 
+    background: #f7f7fb; 
+    color: #1f2933; 
+}
+
+a { 
+    color: #0f62fe; 
+    text-decoration: none; 
+}
+
+a:hover { 
+    text-decoration: underline; 
+}

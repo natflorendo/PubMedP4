@@ -1,0 +1,46 @@
+/* buttons.css */
+
+.btn-primary { 
+    background: #0f62fe; 
+    color: #fff; 
+    border: none; 
+    padding: 10px 14px; 
+    border-radius: 6px; 
+    cursor: pointer; 
+}
+
+.btn-primary:hover { 
+    background: #0b4fcb; 
+}
+
+.btn-primary:disabled { 
+    background: #9ca3af; 
+    cursor: not-allowed;
+    opacity: 0.6; 
+}
+
+.btn-secondary:disabled { 
+    cursor: not-allowed;
+    opacity: 0.6; 
+}
+
+.btn-secondary { 
+    background: #e5e7eb; 
+    color: #111; 
+    border: none; 
+    padding: 8px 12px; 
+    border-radius: 6px; 
+    cursor: pointer; 
+}
+
+.btn-secondary-saved, .btn-secondary-saved:hover {
+  background-color: #16a34a;
+  color: #ffffff;            
+  border-color: #16a34a;     
+}
+
+.btn-secondary-error, .btn-secondary-error:hover {
+  background-color: #dc2626;
+  color: #ffffff;
+  border-color: #dc2626;
+}

@@ -1,0 +1,37 @@
+/* layout.css */
+
+.app-container { 
+    max-width: 1200px; 
+    margin: 0 auto; 
+    padding: 16px; 
+}
+
+.app-header { 
+    padding: 12px 0; 
+}
+
+.app-main { 
+    padding: 12px 0 32px; 
+}
+
+.page { 
+    background: #fff; 
+    padding: 16px; 
+    border-radius: 8px; 
+    box-shadow: 0 2px 6px rgba(0,0,0,0.05); 
+}
+
+.card { 
+    max-width: 420px; 
+    margin: 0 auto; 
+}
+
+.muted { 
+    color: #6b7280; 
+    font-size: 0.95rem; 
+}
+
+.error { 
+    color: #c53030; 
+    margin-top: 8px; 
+}

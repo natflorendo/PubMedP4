@@ -1,6 +1,6 @@
--- How to run SQL file: psql -d <DATABASE> -f Phase4.sql
---   EX: psql -d pubmedflo -f Phase3.sql
---       psql "$PUBMEDFLO_DB_URL" -f Phase4.sql
+-- How to run SQL file: psql -d <DATABASE> -f pipeline/Phase4.sql
+--   EX: psql -d pubmedflo -f pipeline/Phase4.sql
+--       psql "$PUBMEDFLO_DB_URL" -f pipeline/Phase4.sql
 -- Clean and Restart Tables: 
 --    psql -U nathan -d pubmedflo -c "DROP SCHEMA public CASCADE; CREATE SCHEMA public;"
 
@@ -68,9 +68,9 @@ CREATE TABLE documents (
     added_at    TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 
     -- Foreign key for the 1-to-N 'adds' relationship
-    -- Document needs a curator when created, but if the curator is deleted, the document stays
+    -- Document needs a curator/admin when created, but if the curator/admin is deleted, the document stays
     added_by    BIGINT,
-    FOREIGN KEY (added_by) REFERENCES curators(user_id) ON DELETE SET NULL,
+    FOREIGN KEY (added_by) REFERENCES users(user_id) ON DELETE SET NULL,
 
     -- Foreign key for the 1-to-0..1 'describes' relationship
     pmid        BIGINT UNIQUE,

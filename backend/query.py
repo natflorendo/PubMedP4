@@ -3,6 +3,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from .auth import get_current_user
 from .models import QueryRequest, QueryResponse
 from .query_service import QueryService
+from .repository import UserRepository, get_db
 
 # `tags` adds an Swagger tag for documentation. (Use http://127.0.0.1:8000/docs)
 router = APIRouter(tags=["query"])
@@ -10,8 +11,10 @@ query_service = QueryService()
 
 
 @router.post("/query", response_model=QueryResponse)
-def run_query(payload: QueryRequest, current_user=Depends(get_current_user)):
+def run_query(payload: QueryRequest, current_user=Depends(get_current_user), conn=Depends(get_db)):
     try:
+        # Update last_activity for end users on each query.
+        UserRepository(conn).update_last_activity(current_user["user_id"])
         # Loads config.toml, calls search_index(...) to retrieve chunks and maybe generate an LLM answer
         # and return a QueryResponse.
         result = query_service.run_query(

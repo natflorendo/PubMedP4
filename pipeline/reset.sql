@@ -6,8 +6,8 @@
  *   Also resets ID sequences and cascades through foreign-key dependencies.
  *
  * Usage:
- *   psql "$PUBMEDFLO_DB_URL" -f reset.sql
- *   psql -U nathan -d pubmedflo -f reset.sql
+ *   psql "$PUBMEDFLO_DB_URL" -f pipeline/reset.sql
+ *   psql -U nathan -d pubmedflo -f pipeline/reset.sql
  */
 
 -- TRUNCATE TABLE removes all rows from one or more tables without scanning each row (like DELETE)
