@@ -41,6 +41,10 @@ def get_pool() -> ConnectionPool:
 
 # @asynccontextmanager turns this async def into an async context manager compatible with FastAPI’s lifespan parameter,
 # which tells FastAPI how to manage startup and shutdown for this app.
+# Pre-opens the pool and connections at app startup.
+# Note: the app would still work without this and the pool would just
+# be created/opened lazily the first time `pool.connection()` is used.
+# This is mainly about clean startup/shutdown behavior.
 @asynccontextmanager
 async def lifespan(app):
     """FastAPI lifespan hook to open/close the connection pool."""
